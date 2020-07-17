@@ -14,37 +14,39 @@ const upload = multer({
         if(!file.originalname.endsWith('.csv')){
             return cb(new Error('please upload a csv file'))
         }
-        console.log(file)
         cb(undefined, true)
     }
 });
 
 router.post('/upload', upload.single('upload'), (req, res)=> {
-    fs.readdir(dirName, (err, files)=> {
-        if(err){
-           throw err;
+      
+    const parseCsvToJson = (file)=> {
+        csvtojson()
+      .fromFile(path.join(__dirname + `../../../data/${file}`))
+      .then(csvData => {
+        //   console.log(csvData)
+        for(var i=0; i<csvData.length; i++){
+            const user = new User(csvData[0]);
+            user.save()
         }
-        files.forEach((file)=> parseCsvToJson(file))
+          console.log(csvData[1])
+        
+        console.log('Data Saved')
+      });
+      }
+    
+    
+    fs.readdir(dirName, (err, files)=> {
+            if(err){
+               throw err;
+            }
+            files.forEach((file)=> parseCsvToJson(file))
+        });
+        res.send()
+    }, (error, req, res, next)=> {
+        res.status(400).send({error: error.message})
     });
-    res.send()
-}, (error, req, res, next)=> {
-    res.status(400).send({error: error.message})
-});
 
-
-
-
-
-
-const parseCsvToJson = (file)=> {
-    csvtojson()
-  .fromFile(path.join(__dirname + `../../../data/${file}`))
-  .then(csvData => {
-    const user = new User(csvData);
-    user.save()
-    console.log('Data Saved')
-  });
-  }
 
 router.get('/users', async(req, res)=> {
    
