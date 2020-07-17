@@ -26,7 +26,7 @@ router.post('/upload', upload.single('upload'), (req, res)=> {
       .then(csvData => {
         //   console.log(csvData)
         for(var i=0; i<csvData.length; i++){
-            const user = new User(csvData[0]);
+            const user = new User(csvData[i]);
             user.save()
         }
           console.log(csvData[1])
